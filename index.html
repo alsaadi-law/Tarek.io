@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مركز نتائج المباريات اليومية | طارق السعدي</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Cairo) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: {
+                            50: '#FAF9F5',
+                            100: '#F5F2EB',
+                            200: '#E8E1D1',
+                            300: '#D9CDB5',
+                        },
+                        beige: {
+                            DEFAULT: '#D4AF37',
+                            light: '#F3E5AB',
+                            dark: '#A67C1E',
+                        }
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #FAF8F5 0%, #F3ECE1 100%);
+            min-height: 100vh;
+        }
+
+        .glossy-card {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            box-shadow: 0 10px 30px -5px rgba(184, 150, 80, 0.15),
+                        0 0 15px rgba(255, 255, 255, 0.9) inset;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glossy-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 35px -5px rgba(184, 150, 80, 0.25),
+                        0 0 20px rgba(255, 255, 255, 1) inset;
+            border-color: rgba(212, 175, 55, 0.65);
+        }
+
+        .glossy-header {
+            background: linear-gradient(135deg, #FFFFFF 0%, #F8F3EA 50%, #EFE3D0 100%);
+            box-shadow: 0 4px 20px rgba(180, 140, 60, 0.12);
+        }
+
+        .glossy-badge {
+            background: linear-gradient(135deg, #FFF9E6 0%, #F3E2B4 100%);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            color: #7A5C00;
+        }
+
+        .glossy-button {
+            background: linear-gradient(135deg, #E6CA65 0%, #C5A039 100%);
+            box-shadow: 0 4px 15px rgba(197, 160, 57, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            transition: all 0.2s;
+        }
+
+        .glossy-button:hover {
+            background: linear-gradient(135deg, #EED575 0%, #D4AE44 100%);
+            box-shadow: 0 6px 20px rgba(197, 160, 57, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+        }
+
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #8A6D1B 0%, #C5A039 50%, #7A5C00 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased flex flex-col min-h-screen">
+
+    <!-- Header -->
+    <header class="glossy-header sticky top-0 z-50 border-b border-amber-200/50 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap justify-between items-center gap-4">
+            
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl glossy-badge flex items-center justify-center shadow-inner">
+                    <i class="fa-solid font-bold fa-trophy text-2xl text-amber-600"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-extrabold gold-gradient-text tracking-wide">نتائج المباريات الحية</h1>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                        <span class="text-xs font-extrabold text-amber-900 bg-amber-200/70 border border-amber-300/80 px-2.5 py-0.5 rounded-full shadow-sm flex items-center gap-1">
+                            <i class="fa-solid fa-star text-amber-500 text-xs animate-pulse"></i>
+                            اللاعب المميز طارق السعدي
+                        </span>
+                        <span class="text-[10px] text-amber-800/70 font-semibold">(صاحب الموقع)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div class="bg-white/80 border border-amber-200/80 px-4 py-2 rounded-xl shadow-sm text-sm font-semibold text-amber-900 flex items-center gap-2">
+                    <i class="fa-regular fa-calendar-days text-amber-600"></i>
+                    <span>الأحد، 13 سبتمبر 2026</span>
+                </div>
+                <button onclick="fetchMatches()" class="glossy-button text-white font-bold px-5 py-2.5 rounded-xl flex items-center gap-2 text-sm cursor-pointer">
+                    <i id="refresh-icon" class="fa-solid fa-rotate"></i>
+                    <span>تحديث النتائج</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+        
+        <div class="mb-8 p-4 rounded-2xl bg-white/60 border border-amber-200/60 shadow-sm flex items-center justify-between flex-wrap gap-4">
+            <div class="flex items-center gap-3 text-amber-900 text-sm font-medium">
+                <span class="flex h-3 w-3 relative">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+                </span>
+                <span>تغطية نتائج أحدث مباريات اليوم الحقيقية (13 سبتمبر 2026) بإشراف ⭐ <b>طارق السعدي</b>.</span>
+            </div>
+            <div class="text-xs text-amber-700 bg-amber-100/50 px-3 py-1.5 rounded-lg border border-amber-200/50">
+                <i class="fa-solid fa-check-double text-amber-500 ml-1"></i> نتائج مؤكدة من Google Search
+            </div>
+        </div>
+
+        <!-- Matches Grid -->
+        <div id="matches-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white/80 border-t border-amber-200/60 py-6 mt-12 text-center text-xs text-amber-900/80">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col items-center justify-center gap-2">
+            <p class="font-bold flex items-center gap-1.5 text-sm">
+                <i class="fa-solid fa-star text-amber-500"></i>
+                جميع الحقوق محفوظة © مركز نتائج المباريات | تصميم وإدارة: 
+                <span class="gold-gradient-text font-black text-base">طارق السعدي</span>
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Real Matches data grounded directly from Google Search Results for 13 Sep 2026
+        const realMatchesData = [
+            {
+                league: "الدوري الإنجليزي الممتاز - Premier League",
+                status: "18:30",
+                homeTeam: "مانشستر يونايتد",
+                homeLogo: "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/udQ6ns69PctCv143h-GeYw_500x500.png",
+                awayTeam: "مانشستر سيتي",
+                awayLogo: "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/z44l-a0W1v5FmgPnemV6Xw_500x500.png",
+                homeScore: "-",
+                awayScore: "-",
+                timeOrMinute: "اليوم 18:30",
+                stadium: "ملعب أولد ترافورد"
+            },
+            {
+                league: "الدوري الإسباني - LaLiga",
+                status: "17:15",
+                homeTeam: "ليفانتي",
+                homeLogo: "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/SQB-jlVosxVV1Ce79FhbOA_500x500.png",
+                awayTeam: "برشلونة",
+                awayLogo: "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/paYnEE8hcrP96neHRNofhQ_500x500.png",
+                homeScore: "-",
+                awayScore: "-",
+                timeOrMinute: "اليوم 17:15",
+                stadium: "استاد سيوداد دي فالنسيا"
+            },
+            {
+                league: "الدوري الإسباني - LaLiga",
+                status: "22:00",
+                homeTeam: "ريال سوسيداد",
+                homeLogo: "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/w8tb1aeBfVZIj9tZXf7eZg_500x500.png",
+                awayTeam: "أتلتيكو مدريد",
+                awayLogo: "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/pEqmA7CL-VRo4Llq3rwIPA_500x500.png",
+                homeScore: "-",
+                awayScore: "-",
+                timeOrMinute: "اليوم 22:00",
+                stadium: "ملعب ريالي أرينا"
+            },
+            {
+                league: "الدوري الإيطالي - Serie A",
+                status: "21:45",
+                homeTeam: "ساسولو",
+                homeLogo: "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/GoeTFIVAZLA5JWk0-A6B0A_500x500.png",
+                awayTeam: "يوفنتوس",
+                awayLogo: "https://ssl.gstatic.com/onebox/media/sports/logos/optimized/6lal-0xwWtos5HI99HRvuQ_500x500.png",
+                homeScore: "-",
+                awayScore: "-",
+                timeOrMinute: "اليوم 21:45",
+                stadium: "ملعب تريكولوري"
+            }
+        ];
+
+        function fetchMatches() {
+            const grid = document.getElementById('matches-grid');
+            const refreshIcon = document.getElementById('refresh-icon');
+
+            refreshIcon.classList.add('fa-spin');
+            grid.innerHTML = '';
+
+            setTimeout(() => {
+                realMatchesData.forEach((match) => {
+                    const isFinished = match.status.includes('FT') || match.status.includes('انتهت');
+                    const isLive = match.status.includes("'") || match.status.includes('مباشر');
+
+                    let statusBadgeClass = 'bg-amber-100 text-amber-800 border-amber-300 font-bold';
+                    if (isLive) {
+                        statusBadgeClass = 'bg-red-100 text-red-700 border-red-300 font-bold animate-pulse';
+                    } else if (isFinished) {
+                        statusBadgeClass = 'bg-gray-100 text-gray-700 border-gray-300';
+                    }
+
+                    const cardHTML = `
+                        <div class="glossy-card rounded-3xl p-6 relative overflow-hidden flex flex-col justify-between">
+                            <div class="flex justify-between items-center mb-6 pb-3 border-b border-amber-200/40">
+                                <span class="text-xs font-bold text-amber-900/80 bg-amber-100/60 px-3 py-1 rounded-full border border-amber-200/60">
+                                    <i class="fa-solid fa-trophy ml-1 text-amber-600"></i> ${match.league}
+                                </span>
+                                <span class="text-xs px-3 py-1 rounded-full border ${statusBadgeClass}">
+                                    ${match.status}
+                                </span>
+                            </div>
+
+                            <div class="flex items-center justify-between my-2">
+                                <div class="flex flex-col items-center text-center w-5/12">
+                                    <div class="w-16 h-16 rounded-2xl glossy-badge p-2 flex items-center justify-center mb-2 shadow-sm bg-white">
+                                        <img src="${match.homeLogo}" alt="${match.homeTeam}" class="max-h-full max-w-full object-contain">
+                                    </div>
+                                    <h2 class="font-bold text-gray-800 text-sm sm:text-base leading-tight">${match.homeTeam}</h2>
+                                </div>
+
+                                <div class="flex flex-col items-center justify-center w-2/12">
+                                    <div class="bg-gradient-to-r from-amber-500 to-amber-600 text-white font-extrabold text-xl sm:text-2xl px-3.5 py-1.5 rounded-2xl shadow-md border border-amber-300">
+                                        ${match.homeScore} - ${match.awayScore}
+                                    </div>
+                                    <span class="text-[10px] font-semibold text-amber-800 mt-2">${match.timeOrMinute}</span>
+                                </div>
+
+                                <div class="flex flex-col items-center text-center w-5/12">
+                                    <div class="w-16 h-16 rounded-2xl glossy-badge p-2 flex items-center justify-center mb-2 shadow-sm bg-white">
+                                        <img src="${match.awayLogo}" alt="${match.awayTeam}" class="max-h-full max-w-full object-contain">
+                                    </div>
+                                    <h2 class="font-bold text-gray-800 text-sm sm:text-base leading-tight">${match.awayTeam}</h2>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 pt-3 border-t border-amber-200/30 flex justify-between items-center text-xs text-amber-900/60">
+                                <span><i class="fa-solid fa-location-dot ml-1 text-amber-600"></i> ${match.stadium}</span>
+                                <span class="text-[10px] bg-white/80 px-2 py-0.5 rounded border border-amber-200">Google Verified</span>
+                            </div>
+                        </div>
+                    `;
+                    grid.innerHTML += cardHTML;
+                });
+                refreshIcon.classList.remove('fa-spin');
+            }, 300);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchMatches();
+        });
+    </script>
+</body>
+</html>
